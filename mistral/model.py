@@ -223,7 +223,7 @@ class Transformer(nn.Module):
         return model
 
     @staticmethod
-    def from_tarfile(file: str, max_batch_size: int = 1, device="cuda", dtype=torch.float16) -> "Transformer":
+    def from_tarfile(tar_path: str, max_batch_size: int = 1, device="cuda", dtype=torch.float16) -> "Transformer":
         import tarfile
         from io import BytesIO
         with tarfile.open(tar_path, 'r') as tar:
