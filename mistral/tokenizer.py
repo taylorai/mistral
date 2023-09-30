@@ -34,3 +34,15 @@ class Tokenizer:
 
     def decode(self, t: List[int]) -> str:
         return self._model.decode(t)
+
+    @staticmethod
+    def from_tarfile(tar_path: str) -> "Tokenizer":
+        import tempfile
+        import tarfile
+        with tarfile.open(tar_path, "r") as tar:
+            with tempfile.NamedTemporaryFile(delete=False) as tmp_file:  # Note the mode='w'
+                extracted_file = tar.extractfile("mistral-7B-v0.1/tokenizer.model")
+                tmp_file.write(extracted_file.read())  # Decoding bytes to string
+                tmp_file_path = tmp_file.name
+                tokenizer = Tokenizer(tmp_file_path)
+        return tokenizer
