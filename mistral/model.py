@@ -221,3 +221,26 @@ class Transformer(nn.Module):
         loaded = torch.load(folder / 'consolidated.00.pth')
         model.load_state_dict(loaded)
         return model
+
+    @staticmethod
+    def from_tarfile(file: str, max_batch_size: int = 1, device="cuda", dtype=torch.float16) -> "Transformer":
+        import tarfile
+        from io import BytesIO
+        with tarfile.open(tar_path, 'r') as tar:
+            # Read params.json
+            params_file = tar.extractfile('mistral-7B-v0.1/params.json')
+            model_args = ModelArgs(**json.loads(params_file.read().decode('utf-8')))
+            model_args.max_batch_size = max_batch_size
+
+            # Create the Transformer model
+            model = Transformer(model_args).to(device=device, dtype=dtype)
+        
+            # Read consolidated.00.pth
+            pth_file = tar.extractfile('mistral-7B-v0.1/consolidated.00.pth')
+            buffer = BytesIO(pth_file.read())
+            loaded = torch.load(buffer)
+    
+            # Load the model parameters
+            model.load_state_dict(loaded)
+
+            return model
